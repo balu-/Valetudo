@@ -1758,14 +1758,6 @@
                         ???
                     </div>
                 </ons-list-item>
-                <ons-list-item>
-                    <div class="left">
-                        Valetudo version:
-                    </div>
-                    <div class="right" id="info_valetudo_version">
-                        ???
-                    </div>
-                </ons-list-item>
             </ons-list>
             <ons-list-title style="margin-top:5px;">App Locale</ons-list-title>
             <ons-list>
@@ -1818,7 +1810,25 @@
                     </div>
                 </ons-list-item>
             </ons-list>
-
+            <ons-list-title style="margin-top:5px;">Valetudo</ons-list-title>
+            <ons-list>
+                <ons-list-item>
+                    <div class="left">
+                        Running Valetudo version:
+                    </div>
+                    <div class="right" id="info_valetudo_version">
+                        ???
+                    </div>
+                </ons-list-item>
+                <ons-list-item>
+                    <div class="left">
+                        Newest Valetudo version:
+                    </div>
+                    <div class="right" id="info_newest_valetudo_version">
+                        <ons-button modifier="large" class="button-margin" onclick="checkNewValetudoVersion();">Check for new Valuto Version</ons-button>
+                    </div>
+                </ons-list-item>
+            </ons-list>
 
             <script>
                 var loadingBarSettingsInfo = document.getElementById('loading-bar-settings-info');
@@ -1856,6 +1866,22 @@
                             document.getElementById('app_locale_logserver').innerHTML = appLocale.logserver;
                         } else {
                             ons.notification.toast(err, { buttonLabel: 'Dismiss', timeout: 1500 })
+                        }
+                    });
+                }
+
+                function checkNewValetudoVersion() {
+                    loadingBarSettingsInfo.setAttribute("indeterminate", "indeterminate");
+                    fn.request("https://api.github.com/repos/Hypfer/Valetudo/releases", "GET", function (err, res) {
+                        loadingBarSettingsInfo.removeAttribute("indeterminate");
+                        if (!err) {
+                            try {
+                                document.getElementById('info_newest_valetudo_version').innerHTML = res[0].tag_name;
+                            } catch (e) {
+                                ons.notification.toast(e, { buttonLabel: 'Dismiss', timeout: 1500 });
+                            }
+                        } else {
+                            ons.notification.toast(err, { buttonLabel: 'Dismiss', timeout: 1500 });
                         }
                     });
                 }
