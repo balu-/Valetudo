@@ -1828,6 +1828,14 @@
                         <ons-button modifier="large" class="button-margin" onclick="checkNewValetudoVersion();">Check for new Valuto Version</ons-button>
                     </div>
                 </ons-list-item>
+                <ons-list-item id="info_valetudo_update_url_list" style="display: none;">
+                    <div class="left">
+                        Newest Version URL:
+                    </div>
+                    <div class="right" id="info_valetudo_update_url">
+                        ???
+                    </div>
+                </ons-list-item>
             </ons-list>
 
             <script>
@@ -1876,7 +1884,14 @@
                         loadingBarSettingsInfo.removeAttribute("indeterminate");
                         if (!err) {
                             try {
-                                document.getElementById('info_newest_valetudo_version').innerHTML = res[0].tag_name;
+                                var info_valetudo_newest_release = res[0];
+                                document.getElementById('info_newest_valetudo_version').innerHTML = info_valetudo_newest_release.tag_name;
+                                document.getElementById('info_valetudo_update_url').innerHTML = '<a href="'+info_valetudo_newest_release.html_url+'">'+info_valetudo_newest_release.html_url+'</a>';
+                                if( document.getElementById('info_valetudo_version').innerHTML != info_valetudo_newest_release.tag_name)
+                                {
+                                        document.getElementById('info_valetudo_update_url_list').style.display = ""; //make entry visible if newer version is availiable
+                                }
+
                             } catch (e) {
                                 ons.notification.toast(e, { buttonLabel: 'Dismiss', timeout: 1500 });
                             }
