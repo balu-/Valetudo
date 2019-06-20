@@ -3,6 +3,8 @@ import { PathDrawer } from "./path-drawer.js";
 import { trackTransforms } from "./tracked-canvas.js";
 import { GotoPoint, Zone, NoGoZone, VirtualWall, CurrentCleaningZone, GotoTarget } from "./locations.js";
 import { TouchHandler } from "./touch-handling.js";
+//dont know if thats needed but it seems saver to require it
+const WebSocket = require('ws');
 
 /**
  * Represents the map and handles all the userinteractions
@@ -26,6 +28,17 @@ export function VacuumMap(canvasElement) {
 
     let redrawCanvas = null;
 
+    function heartbeat() {
+      clearTimeout(heartbeatTimeout);
+     
+      // Use `WebSocket#terminate()` and not `WebSocket#close()`. Delay should be
+      // equal to the interval at which your server sends out pings plus a
+      // conservative assumption of the latency.
+      heartbeatTimeout = setTimeout(() => {
+        this.terminate();
+      }, 30000 + 2000);
+    }
+
 
     function initWebSocket() {
         const protocol = location.protocol === "https:" ? "wss" : "ws";
@@ -35,11 +48,7 @@ export function VacuumMap(canvasElement) {
         ws = new WebSocket(`${protocol}://${window.location.host}/`);
         ws.onmessage = function(event) {
             // reset connection timeout
-            clearTimeout(heartbeatTimeout);
-            heartbeatTimeout = setTimeout(function() {
-                // try to reconnect
-                initWebSocket();
-            }, 5000);
+           heartbeat();
 
             if(event.data !== "") {
                 try {
@@ -54,6 +63,11 @@ export function VacuumMap(canvasElement) {
             // try to reconnect
             initWebSocket();
         };
+        ws.on('open', heartbeat);
+        ws.on('ping', heartbeat);
+        ws.on('close', function clear() {
+          clearTimeout(heartbeatTimeout);
+        });
     }
 
     function closeWebSocket() {
